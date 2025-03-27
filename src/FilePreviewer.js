@@ -10,6 +10,7 @@ const FilePreviewer = () => {
     const [textContent, setTextContent] = useState('');
     const [numPages, setNumPages] = useState(null);
     const [pageNumber, setPageNumber] = useState(1);
+    const [docxPreview, setDocxPreview] = useState('');
 
     const handleFileChange = async (e) => {
         const selectedFile = e.target.files[0];
@@ -20,10 +21,13 @@ const FilePreviewer = () => {
 
         try {
             if (selectedFile.type === 'application/pdf' || fileExtension === 'pdf') {
+                // PDF preview is handled by the <Document> component; extract text separately
                 await extractPdfText(selectedFile);
             } else if (selectedFile.type.includes('wordprocessingml.document') || fileExtension === 'docx') {
+                // Extract text and prepare HTML preview for Word documents
                 await extractDocxText(selectedFile);
             } else if (selectedFile.type === 'text/plain' || fileExtension === 'txt') {
+                // Extract text for plain text files
                 extractTextFile(selectedFile);
             }
         } catch (error) {
@@ -48,7 +52,9 @@ const FilePreviewer = () => {
     const extractDocxText = async (file) => {
         const arrayBuffer = await file.arrayBuffer();
         const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
-        setTextContent(result.value);
+        setTextContent(result.value); // Extracted plain text
+        const htmlResult = await mammoth.convertToHtml({ arrayBuffer: arrayBuffer });
+        setDocxPreview(htmlResult.value); // HTML preview
     };
 
     const extractTextFile = (file) => {
@@ -61,7 +67,7 @@ const FilePreviewer = () => {
         <div className="container mt-4">
             <h1 className="text-center mb-4">LexiEase</h1>
             <div className="row justify-content-center">
-                <div className="col-md-6">
+                <div className="col-md-8">
                     <input
                         type="file"
                         className="form-control mb-3"
@@ -71,8 +77,9 @@ const FilePreviewer = () => {
 
                     {file && (
                         <div className="card p-3 mb-3">
+                            {/* PDF Preview */}
                             {file.type === 'application/pdf' && (
-                                <div>
+                                <div className="pdf-preview">
                                     <Document
                                         file={file}
                                         onLoadSuccess={({ numPages }) => setNumPages(numPages)}
@@ -99,7 +106,25 @@ const FilePreviewer = () => {
                                 </div>
                             )}
 
-                            {(file.type === 'text/plain' || file.type.includes('document') || file.type === 'application/pdf') && (
+                            {/* Word Document Preview */}
+                            {file.type.includes('wordprocessingml.document') && (
+                                <div className="docx-preview mt-3">
+                                    <h3 className="mb-2">Document Preview:</h3>
+                                    <div
+                                        dangerouslySetInnerHTML={{ __html: docxPreview }}
+                                        style={{
+                                            maxHeight: '500px',
+                                            overflowY: 'auto',
+                                            border: '1px solid #ddd',
+                                            borderRadius: '4px',
+                                            padding: '10px',
+                                        }}
+                                    />
+                                </div>
+                            )}
+
+                            {/* Extracted Text Section */}
+                            {textContent && file.type !== 'application/pdf' && (
                                 <div className="text-preview mt-3">
                                     <h3 className="mb-2">Extracted Text:</h3>
                                     <pre className="bg-light p-2" style={{
