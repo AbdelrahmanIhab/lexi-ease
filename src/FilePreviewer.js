@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
-import { Document as DocxDocument } from 'docx';
+import * as mammoth from 'mammoth';
 
 // Configure PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
@@ -47,8 +47,8 @@ const FilePreviewer = () => {
 
     const extractDocxText = async (file) => {
         const arrayBuffer = await file.arrayBuffer();
-        const doc = await DocxDocument.load(arrayBuffer);
-        setTextContent(doc.text);
+        const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
+        setTextContent(result.value);
     };
 
     const extractTextFile = (file) => {
@@ -99,10 +99,17 @@ const FilePreviewer = () => {
                                 </div>
                             )}
 
-                            {(file.type === 'text/plain' || file.type.includes('document')) && (
+                            {(file.type === 'text/plain' || file.type.includes('document') || file.type === 'application/pdf') && (
                                 <div className="text-preview mt-3">
                                     <h3 className="mb-2">Extracted Text:</h3>
-                                    <pre className="bg-light p-2">{textContent}</pre>
+                                    <pre className="bg-light p-2" style={{
+                                        whiteSpace: 'pre-wrap',
+                                        wordBreak: 'break-word',
+                                        maxHeight: '500px',
+                                        overflowY: 'auto'
+                                    }}>
+                                        {textContent}
+                                    </pre>
                                 </div>
                             )}
                         </div>
