@@ -48,6 +48,12 @@ input[type="file"] {
   max-height: 500px;
   overflow-y: auto;
 }
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500&display=swap');
+
+body {
+  font-family: 'Lexend', sans-serif;
+}
+
 
 button {
   margin: 5px;

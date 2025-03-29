@@ -11,6 +11,10 @@ const FilePreviewer = () => {
     const [numPages, setNumPages] = useState(null);
     const [pageNumber, setPageNumber] = useState(1);
     const [docxPreview, setDocxPreview] = useState('');
+    const [font, setFont] = useState("Lexend");
+    const [fontSize, setFontSize] = useState(18);
+
+    const dyslexiaFonts = ["Lexend", "OpenDyslexic", "Dyslexie", "Comic Sans MS", "Arial"];
 
     const handleFileChange = async (e) => {
         const selectedFile = e.target.files[0];
@@ -21,13 +25,10 @@ const FilePreviewer = () => {
 
         try {
             if (selectedFile.type === 'application/pdf' || fileExtension === 'pdf') {
-                // PDF preview is handled by the <Document> component; extract text separately
                 await extractPdfText(selectedFile);
             } else if (selectedFile.type.includes('wordprocessingml.document') || fileExtension === 'docx') {
-                // Extract text and prepare HTML preview for Word documents
                 await extractDocxText(selectedFile);
             } else if (selectedFile.type === 'text/plain' || fileExtension === 'txt') {
-                // Extract text for plain text files
                 extractTextFile(selectedFile);
             }
         } catch (error) {
@@ -52,9 +53,9 @@ const FilePreviewer = () => {
     const extractDocxText = async (file) => {
         const arrayBuffer = await file.arrayBuffer();
         const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
-        setTextContent(result.value); // Extracted plain text
+        setTextContent(result.value);
         const htmlResult = await mammoth.convertToHtml({ arrayBuffer: arrayBuffer });
-        setDocxPreview(htmlResult.value); // HTML preview
+        setDocxPreview(htmlResult.value);
     };
 
     const extractTextFile = (file) => {
@@ -74,67 +75,44 @@ const FilePreviewer = () => {
                         accept=".pdf,.docx,.txt"
                         onChange={handleFileChange}
                     />
+                    <div className="mb-3">
+                        <label>Font:</label>
+                        <select className="form-control" value={font} onChange={(e) => setFont(e.target.value)}>
+                            {dyslexiaFonts.map(f => <option key={f} value={f}>{f}</option>)}
+                        </select>
+                    </div>
+                    <div className="mb-3">
+                        <label>Font Size:</label>
+                        <input
+                            type="number"
+                            className="form-control"
+                            value={fontSize}
+                            onChange={(e) => setFontSize(parseInt(e.target.value) || 18)}
+                        />
+                    </div>
 
                     {file && (
                         <div className="card p-3 mb-3">
-                            {/* PDF Preview */}
-                            {file.type === 'application/pdf' && (
-                                <div className="pdf-preview">
-                                    <Document
-                                        file={file}
-                                        onLoadSuccess={({ numPages }) => setNumPages(numPages)}
-                                        onLoadError={(error) => console.error('Failed to load PDF:', error)}
-                                    >
-                                        <Page pageNumber={pageNumber} />
-                                    </Document>
-                                    <div className="d-flex justify-content-center mt-2">
-                                        <button
-                                            className="btn btn-secondary mx-1"
-                                            onClick={() => setPageNumber(pageNumber - 1)}
-                                            disabled={pageNumber <= 1}
-                                        >
-                                            Previous
-                                        </button>
-                                        <button
-                                            className="btn btn-secondary mx-1"
-                                            onClick={() => setPageNumber(pageNumber + 1)}
-                                            disabled={pageNumber >= numPages}
-                                        >
-                                            Next
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Word Document Preview */}
-                            {file.type.includes('wordprocessingml.document') && (
-                                <div className="docx-preview mt-3">
-                                    <h3 className="mb-2">Document Preview:</h3>
-                                    <div
-                                        dangerouslySetInnerHTML={{ __html: docxPreview }}
-                                        style={{
-                                            maxHeight: '500px',
-                                            overflowY: 'auto',
-                                            border: '1px solid #ddd',
-                                            borderRadius: '4px',
-                                            padding: '10px',
-                                        }}
-                                    />
-                                </div>
-                            )}
-
-                            {/* Extracted Text Section */}
-                            {textContent && file.type !== 'application/pdf' && (
-                                <div className="text-preview mt-3">
+                            {/* Extracted Text Section with Custom Font */}
+                            {textContent && (
+                                <div className="text-preview mt-3"
+                                     style={{
+                                         fontFamily: font,
+                                         fontSize: `${fontSize}px`,
+                                         lineHeight: "1.6",
+                                     }}>
                                     <h3 className="mb-2">Extracted Text:</h3>
                                     <pre className="bg-light p-2" style={{
                                         whiteSpace: 'pre-wrap',
                                         wordBreak: 'break-word',
                                         maxHeight: '500px',
-                                        overflowY: 'auto'
+                                        overflowY: 'auto',
+                                        fontFamily: font, // Apply font here
+                                        fontSize: `${fontSize}px`, // Apply font size here
                                     }}>
-                                        {textContent}
-                                    </pre>
+    {textContent}
+</pre>
+
                                 </div>
                             )}
                         </div>
