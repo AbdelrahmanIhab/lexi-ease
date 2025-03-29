@@ -17,7 +17,14 @@ const FilePreviewer = () => {
         "Dyslexie",
         "Comic Sans MS",
         "Arial",
+        "Verdana",
+        "Tahoma",
+        "Courier New",
+        "Trebuchet MS",
+        "Georgia",
+        "Times New Roman"
     ];
+
 
     const handleFileChange = async (e) => {
         const selectedFile = e.target.files[0];
