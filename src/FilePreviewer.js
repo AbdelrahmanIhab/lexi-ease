@@ -13,17 +13,9 @@ const FilePreviewer = () => {
     const [fontSize, setFontSize] = useState(18);
 
     const dyslexiaFonts = [
-        "Lexend",
-        "OpenDyslexic",
-        "Dyslexie",
-        "Comic Sans MS",
-        "Arial",
-        "Verdana",
-        "Tahoma",
-        "Courier New",
-        "Trebuchet MS",
-        "Georgia",
-        "Times New Roman"
+        "Lexend", "OpenDyslexic", "Dyslexie", "Comic Sans MS",
+        "Arial", "Verdana", "Tahoma", "Courier New",
+        "Trebuchet MS", "Georgia", "Times New Roman"
     ];
 
     const handleFileChange = async (e) => {
@@ -36,7 +28,10 @@ const FilePreviewer = () => {
         try {
             if (selectedFile.type === "application/pdf" || fileExtension === "pdf") {
                 await extractPdfText(selectedFile);
-            } else if (selectedFile.type.includes("wordprocessingml.document") || fileExtension === "docx") {
+            } else if (
+                selectedFile.type.includes("wordprocessingml.document") ||
+                fileExtension === "docx"
+            ) {
                 await extractDocxText(selectedFile);
             } else if (selectedFile.type === "text/plain" || fileExtension === "txt") {
                 extractTextFile(selectedFile);
@@ -83,7 +78,63 @@ const FilePreviewer = () => {
                 padding: "20px",
             }}
         >
-            {!fullTextView ? (
+            {fullTextView ? (
+                // Only show extracted text in full view
+                <div
+                    style={{
+                        width: "80%",
+                        maxWidth: "800px",
+                        backgroundColor: "#ffffff",
+                        borderRadius: "15px",
+                        boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
+                        padding: "30px",
+                        textAlign: "center",
+                    }}
+                >
+                    <button
+                        onClick={() => setFullTextView(false)}
+                        style={{
+                            backgroundColor: "#5A47AB",
+                            color: "#fff",
+                            padding: "10px 20px",
+                            border: "none",
+                            borderRadius: "8px",
+                            cursor: "pointer",
+                            fontWeight: "bold",
+                            marginBottom: "15px",
+                        }}
+                    >
+                        Exit Full View
+                    </button>
+
+                    <div
+                        style={{
+                            marginTop: "20px",
+                            padding: "15px",
+                            backgroundColor: "#f9f9f9",
+                            borderRadius: "10px",
+                            boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
+                            textAlign: "left",
+                            maxHeight: "80vh",
+                            overflowY: "auto",
+                        }}
+                    >
+                        <h3 style={{ color: "#5A47AB", fontWeight: "bold" }}>Extracted Text:</h3>
+                        <pre
+                            style={{
+                                whiteSpace: "pre-wrap",
+                                wordBreak: "break-word",
+                                fontFamily: font,
+                                fontSize: `${fontSize}px`,
+                                lineHeight: "1.6",
+                            }}
+                        >
+                            {textContent}
+                        </pre>
+                    </div>
+                </div>
+            ) : (
+                // Normal view with file upload, font selection, etc.
                 <div
                     style={{
                         maxWidth: "700px",
@@ -152,6 +203,24 @@ const FilePreviewer = () => {
                     </div>
 
                     {file && textContent && (
+                        <button
+                            onClick={() => setFullTextView(true)}
+                            style={{
+                                backgroundColor: "#5A47AB",
+                                color: "#fff",
+                                padding: "10px 20px",
+                                border: "none",
+                                borderRadius: "8px",
+                                cursor: "pointer",
+                                fontWeight: "bold",
+                                marginBottom: "15px",
+                            }}
+                        >
+                            Full Text View
+                        </button>
+                    )}
+
+                    {file && textContent && (
                         <div
                             style={{
                                 marginTop: "20px",
@@ -176,64 +245,8 @@ const FilePreviewer = () => {
                             >
                                 {textContent}
                             </pre>
-                            <button
-                                onClick={() => setFullTextView(true)}
-                                style={{
-                                    marginTop: "10px",
-                                    padding: "10px 20px",
-                                    backgroundColor: "#5A47AB",
-                                    color: "white",
-                                    border: "none",
-                                    borderRadius: "5px",
-                                    cursor: "pointer",
-                                }}
-                            >
-                                Full Screen Text
-                            </button>
                         </div>
                     )}
-                </div>
-            ) : (
-                <div
-                    style={{
-                        width: "100%",
-                        height: "100vh",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        backgroundColor: "#ffffff",
-                        padding: "20px",
-                        textAlign: "left",
-                        overflowY: "auto",
-                    }}
-                >
-                    <pre
-                        style={{
-                            whiteSpace: "pre-wrap",
-                            wordBreak: "break-word",
-                            fontFamily: font,
-                            fontSize: `${fontSize}px`,
-                            lineHeight: "1.6",
-                            maxWidth: "90%",
-                        }}
-                    >
-                        {textContent}
-                    </pre>
-                    <button
-                        onClick={() => setFullTextView(false)}
-                        style={{
-                            marginTop: "10px",
-                            padding: "10px 20px",
-                            backgroundColor: "#5A47AB",
-                            color: "white",
-                            border: "none",
-                            borderRadius: "5px",
-                            cursor: "pointer",
-                        }}
-                    >
-                        Exit Full Screen
-                    </button>
                 </div>
             )}
         </div>
