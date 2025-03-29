@@ -6,6 +6,7 @@ import * as mammoth from "mammoth";
 pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.js";
 
 const FilePreviewer = () => {
+    const [fullTextView, setFullTextView] = useState(false);
     const [file, setFile] = useState(null);
     const [textContent, setTextContent] = useState("");
     const [font, setFont] = useState("Lexend");
@@ -25,7 +26,6 @@ const FilePreviewer = () => {
         "Times New Roman"
     ];
 
-
     const handleFileChange = async (e) => {
         const selectedFile = e.target.files[0];
         if (!selectedFile) return;
@@ -34,15 +34,9 @@ const FilePreviewer = () => {
         setFile(selectedFile);
 
         try {
-            if (
-                selectedFile.type === "application/pdf" ||
-                fileExtension === "pdf"
-            ) {
+            if (selectedFile.type === "application/pdf" || fileExtension === "pdf") {
                 await extractPdfText(selectedFile);
-            } else if (
-                selectedFile.type.includes("wordprocessingml.document") ||
-                fileExtension === "docx"
-            ) {
+            } else if (selectedFile.type.includes("wordprocessingml.document") || fileExtension === "docx") {
                 await extractDocxText(selectedFile);
             } else if (selectedFile.type === "text/plain" || fileExtension === "txt") {
                 extractTextFile(selectedFile);
@@ -89,101 +83,159 @@ const FilePreviewer = () => {
                 padding: "20px",
             }}
         >
-            <div
-                style={{
-                    maxWidth: "700px",
-                    width: "100%",
-                    backgroundColor: "#ffffff",
-                    borderRadius: "15px",
-                    boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
-                    padding: "30px",
-                    textAlign: "center",
-                }}
-            >
-                <h1 style={{ color: "#5A47AB", fontWeight: "bold", marginBottom: "20px" }}>
-                    LexiEase
-                </h1>
-
-                <input
-                    type="file"
-                    className="form-control mb-3"
-                    accept=".pdf,.docx,.txt"
-                    onChange={handleFileChange}
+            {!fullTextView ? (
+                <div
                     style={{
-                        padding: "10px",
-                        borderRadius: "8px",
-                        border: "2px solid #5A47AB",
+                        maxWidth: "700px",
                         width: "100%",
-                        cursor: "pointer",
+                        backgroundColor: "#ffffff",
+                        borderRadius: "15px",
+                        boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
+                        padding: "30px",
+                        textAlign: "center",
                     }}
-                />
+                >
+                    <h1 style={{ color: "#5A47AB", fontWeight: "bold", marginBottom: "20px" }}>
+                        LexiEase
+                    </h1>
 
-                <div className="mb-3">
-                    <label style={{ fontWeight: "bold", color: "#333" }}>Font:</label>
-                    <select
-                        className="form-control"
-                        value={font}
-                        onChange={(e) => setFont(e.target.value)}
+                    <input
+                        type="file"
+                        className="form-control mb-3"
+                        accept=".pdf,.docx,.txt"
+                        onChange={handleFileChange}
                         style={{
-                            padding: "8px",
+                            padding: "10px",
                             borderRadius: "8px",
                             border: "2px solid #5A47AB",
                             width: "100%",
                             cursor: "pointer",
                         }}
-                    >
-                        {dyslexiaFonts.map((f) => (
-                            <option key={f} value={f}>
-                                {f}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-                <div className="mb-3">
-                    <label style={{ fontWeight: "bold", color: "#333" }}>Font Size:</label>
-                    <input
-                        type="number"
-                        className="form-control"
-                        value={fontSize}
-                        onChange={(e) => setFontSize(parseInt(e.target.value) || 18)}
-                        style={{
-                            padding: "8px",
-                            borderRadius: "8px",
-                            border: "2px solid #5A47AB",
-                            width: "100%",
-                        }}
                     />
-                </div>
 
-                {file && textContent && (
-                    <div
-                        style={{
-                            marginTop: "20px",
-                            padding: "15px",
-                            backgroundColor: "#f9f9f9",
-                            borderRadius: "10px",
-                            boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
-                            textAlign: "left",
-                            maxHeight: "400px",
-                            overflowY: "auto",
-                        }}
-                    >
-                        <h3 style={{ color: "#5A47AB", fontWeight: "bold" }}>Extracted Text:</h3>
-                        <pre
+                    <div className="mb-3">
+                        <label style={{ fontWeight: "bold", color: "#333" }}>Font:</label>
+                        <select
+                            className="form-control"
+                            value={font}
+                            onChange={(e) => setFont(e.target.value)}
                             style={{
-                                whiteSpace: "pre-wrap",
-                                wordBreak: "break-word",
-                                fontFamily: font,
-                                fontSize: `${fontSize}px`,
-                                lineHeight: "1.6",
+                                padding: "8px",
+                                borderRadius: "8px",
+                                border: "2px solid #5A47AB",
+                                width: "100%",
+                                cursor: "pointer",
                             }}
                         >
-              {textContent}
-            </pre>
+                            {dyslexiaFonts.map((f) => (
+                                <option key={f} value={f}>
+                                    {f}
+                                </option>
+                            ))}
+                        </select>
                     </div>
-                )}
-            </div>
+
+                    <div className="mb-3">
+                        <label style={{ fontWeight: "bold", color: "#333" }}>Font Size:</label>
+                        <input
+                            type="number"
+                            className="form-control"
+                            value={fontSize}
+                            onChange={(e) => setFontSize(parseInt(e.target.value) || 18)}
+                            style={{
+                                padding: "8px",
+                                borderRadius: "8px",
+                                border: "2px solid #5A47AB",
+                                width: "100%",
+                            }}
+                        />
+                    </div>
+
+                    {file && textContent && (
+                        <div
+                            style={{
+                                marginTop: "20px",
+                                padding: "15px",
+                                backgroundColor: "#f9f9f9",
+                                borderRadius: "10px",
+                                boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
+                                textAlign: "left",
+                                maxHeight: "400px",
+                                overflowY: "auto",
+                            }}
+                        >
+                            <h3 style={{ color: "#5A47AB", fontWeight: "bold" }}>Extracted Text:</h3>
+                            <pre
+                                style={{
+                                    whiteSpace: "pre-wrap",
+                                    wordBreak: "break-word",
+                                    fontFamily: font,
+                                    fontSize: `${fontSize}px`,
+                                    lineHeight: "1.6",
+                                }}
+                            >
+                                {textContent}
+                            </pre>
+                            <button
+                                onClick={() => setFullTextView(true)}
+                                style={{
+                                    marginTop: "10px",
+                                    padding: "10px 20px",
+                                    backgroundColor: "#5A47AB",
+                                    color: "white",
+                                    border: "none",
+                                    borderRadius: "5px",
+                                    cursor: "pointer",
+                                }}
+                            >
+                                Full Screen Text
+                            </button>
+                        </div>
+                    )}
+                </div>
+            ) : (
+                <div
+                    style={{
+                        width: "100%",
+                        height: "100vh",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        backgroundColor: "#ffffff",
+                        padding: "20px",
+                        textAlign: "left",
+                        overflowY: "auto",
+                    }}
+                >
+                    <pre
+                        style={{
+                            whiteSpace: "pre-wrap",
+                            wordBreak: "break-word",
+                            fontFamily: font,
+                            fontSize: `${fontSize}px`,
+                            lineHeight: "1.6",
+                            maxWidth: "90%",
+                        }}
+                    >
+                        {textContent}
+                    </pre>
+                    <button
+                        onClick={() => setFullTextView(false)}
+                        style={{
+                            marginTop: "10px",
+                            padding: "10px 20px",
+                            backgroundColor: "#5A47AB",
+                            color: "white",
+                            border: "none",
+                            borderRadius: "5px",
+                            cursor: "pointer",
+                        }}
+                    >
+                        Exit Full Screen
+                    </button>
+                </div>
+            )}
         </div>
     );
 };
