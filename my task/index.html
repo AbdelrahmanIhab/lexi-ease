@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>PDF Highlighter</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <input type="file" id="pdf-upload" accept=".pdf">
+  <input type="color" id="color-picker" value="#ffff00">
+  <button id="highlight-btn">Highlight</button>
+  <div id="pdf-viewer"></div>
+  
+  <!-- PDF.js from CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
