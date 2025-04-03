@@ -1,0 +1,10 @@
+#pdf-viewer {
+  margin-top: 20px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  white-space: pre-wrap;
+}
+
+#highlight-btn {
+  margin: 0 10px;
+}
